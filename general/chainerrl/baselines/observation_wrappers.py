@@ -70,7 +70,7 @@ def generate_unified_observation_converter(grayscale=False, region_size=8):
             obs = pov
             if grayscale:
                 obs = np.expand_dims(
-                    np.stack([cv2.cvtColor(obs[i], cv2.COLOR_RGB2GRAY) for i in range(batch_size)]), axis=-1)
+                    cv2.cvtColor(obs, cv2.COLOR_RGB2GRAY), axis=-1)	
             obs = obs / 255
 
             if compass_angle is not None:

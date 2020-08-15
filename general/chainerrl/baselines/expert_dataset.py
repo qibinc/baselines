@@ -112,11 +112,14 @@ class ExpertDataset:
         self._reset_indices()
 
     def _convert(self, original_dataset):
+        from tqdm import tqdm
         for (orig_obs, orig_action, orig_reward, orig_next_obs, orig_done) \
-                in original_dataset.sarsd_iter(1, -1):
+                in tqdm(original_dataset.batch_iter(1, 32, 1)):
             obs = self.observation_converter(orig_obs)
             action = self.action_converter(orig_action)
             next_obs = self.observation_converter(orig_next_obs)
+            orig_reward = orig_reward[0]
+            orig_done = orig_done[0]
             obs, action, reward, next_obs, done = _skip_frames(
                 obs, action, orig_reward, next_obs, orig_done, self.frameskip)
 
@@ -124,20 +127,25 @@ class ExpertDataset:
                 obs, next_obs = _stack_frames(obs, next_obs, self.framestack)
 
             self.obs = (
-                obs if self.obs is None else
-                np.concatenate((self.obs, obs)))
+                [obs] if self.obs is None else
+                self.obs + [obs])
             self.action = (
-                action if self.action is None else
-                np.concatenate((self.action, action)))
+                [action] if self.action is None else
+                self.action + [action])
             self.reward = (
-                reward if self.reward is None else
-                np.concatenate((self.reward, reward)))
+                [reward] if self.reward is None else
+                self.reward + [reward])
             self.next_obs = (
-                next_obs if self.next_obs is None else
-                np.concatenate((self.next_obs, next_obs)))
+                [next_obs] if self.next_obs is None else
+                self.next_obs + [next_obs])
             self.done = (
-                done if self.done is None else
-                np.concatenate((self.done, done)))
+                [done] if self.done is None else
+                self.done + [done])
+        self.obs = np.concatenate(self.obs)
+        self.action = np.concatenate(self.action)
+        self.reward = np.concatenate(self.reward)
+        self.next_obs = np.concatenate(self.next_obs)
+        self.done = np.concatenate(self.done)
         self.size = len(self.obs)
 
     def _reset_indices(self):

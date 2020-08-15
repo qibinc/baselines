@@ -38,10 +38,6 @@ class BehavioralCloning(AttributeSavingMixin, Agent):
                  states_per_epoch=2048,
                  action_wrapper='discrete',
                  entropy_coef=0.01, gpu=None):
-        if gpu is not None and gpu >= 0:
-            cuda.get_device_from_id(gpu).use()
-            self.model.to_gpu(device=gpu)
-
         self.model = model
         self.optimizer = optimizer
         self.minibatch_size = minibatch_size
@@ -50,11 +46,14 @@ class BehavioralCloning(AttributeSavingMixin, Agent):
         self.action_wrapper = action_wrapper
         self.entropy_coef = entropy_coef
         self.xp = self.model.xp
+        if gpu is not None and gpu >= 0:
+            cuda.get_device_from_id(gpu).use()
+            self.model.to_gpu(device=gpu)
 
     def act(self, obs):
         obs = self.xp.array(obs)
         with chainer.using_config('train', False), chainer.no_backprop_mode():
-            q = chainer.cuda.to_cpu(self.model(np.expand_dims(obs, axis=0)).sample().array)
+            q = chainer.cuda.to_cpu(self.model(cuda.to_gpu(np.expand_dims(obs, axis=0))).sample().array)
             return q[0]
 
     def act_and_train(self, obs, reward):
@@ -67,7 +66,8 @@ class BehavioralCloning(AttributeSavingMixin, Agent):
         pass
 
     def _loss(self, batch_obs, batch_acs):
-        out = self.model(batch_obs)
+        out = self.model(cuda.to_gpu(batch_obs))
+        batch_acs = cuda.to_gpu(batch_acs)
         entropy = F.average(out.entropy)
         if self.action_wrapper == 'discrete':
             loss = F.softmax_cross_entropy(out.params[0], batch_acs.reshape(-1))
@@ -107,12 +107,12 @@ class BehavioralCloning(AttributeSavingMixin, Agent):
                 lambda: self._loss(batch_obs, batch_acs))
             validate_loss = chainer.cuda.to_cpu(
                 self._loss(validate_obs, validate_acs).array)
-            logger.debug('Validate_loss: {}'.format(validate_loss))
             if validate_loss > current_loss - minimum_update_delta:
                 num_retry += 1
             else:
                 num_retry = 0
                 current_loss = validate_loss
+                logger.info('Validate_loss: {}'.format(validate_loss))
             if num_retry == max_retry:
                 break
         self.average_loss = current_loss

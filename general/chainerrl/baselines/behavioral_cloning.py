@@ -81,7 +81,7 @@ class Net(chainer.Chain):
             self.a_stream = chainerrl.links.mlp.MLP(None, n_actions, self.hiddens)
 
     def get_raw_value(self, x):
-        h = np.array(x)
+        h = x
         for l in self.conv_layers:
             h = self.activation(l(h))
         out = self.a_stream(h)
@@ -330,7 +330,8 @@ def _main(args):
     agent = BehavioralCloning(policy, opt,
                               minibatch_size=1024,
                               entropy_coef=args.entropy_coef,
-                              action_wrapper=args.action_wrapper)
+                              action_wrapper=args.action_wrapper,
+                              gpu=args.gpu)
 
     if args.load:
         agent.load(args.load)

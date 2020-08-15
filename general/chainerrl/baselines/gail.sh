@@ -1,7 +1,7 @@
 # PLEASE MAKE SURE THAT DATABASE IS SET CORRECTLY.
 # By default, this code assume that expert dataset is in ./expert_dataset
 # Treechop
-python3 gail.py \
+xvfb-run python3 gail.py \
   --gpu 0 --env MineRLTreechop-v0 --outdir results/MineRLTreechop-v0/gail \
   --policy ppo --frame-skip 8 --frame-stack 1 --num-camera-discretize 7 \
   --expert ./expert_dataset --action-wrapper multi-dimensional-softmax \

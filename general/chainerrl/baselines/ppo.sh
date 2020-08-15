@@ -1,5 +1,5 @@
 # Treechop
-python3 ppo.py \
+xvfb-run python3 ppo.py \
   --gpu 0 --env MineRLTreechop-v0 --outdir results/MineRLTreechop-v0/ppo \
   --arch nature --update-interval 1024 --monitor --lr 0.00025 --frame-stack 4 --frame-skip 4 --gamma 0.99 --epochs 3 \
   --always-keys attack --reverse-keys forward --exclude-keys back left right sneak sprint

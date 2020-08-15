@@ -68,6 +68,7 @@ class DiscreteActionConverter:
             raise ValueError('Unknown operator {}'.format(operator))
 
     def __call__(self, action):
+        action = {x: action[x][0] for x in action}
         episode_len = len(action['forward'])
         ret = np.zeros((episode_len, 1), dtype=np.int32)
         for operator, comp, action_name, value in reversed(self.query):
@@ -267,6 +268,7 @@ def generate_continuous_converter(env_name, allow_pitch, max_camera_range):
     env_name = env_name.replace("Dense", "")
 
     def action_converter(action):
+        action = {x: action[x][0] for x in action}
         episode_len = len(action['forward'])
         value = np.zeros((episode_len, len(action) + 1), dtype=np.float32)
         idx = 0
@@ -308,6 +310,7 @@ def generate_multi_dimensional_softmax_converter(
     '''
 
     def action_converter(action):
+        action = {x: action[x][0] for x in action}
         episode_len = len(action['forward'])
         value = np.zeros((episode_len, len(action) + 1), dtype=np.int32)
         idx = 0

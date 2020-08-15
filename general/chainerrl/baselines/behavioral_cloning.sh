@@ -1,7 +1,7 @@
 # PLEASE MAKE SURE THAT DATABASE IS SET CORRECTLY.
 # By default, this code assume that expert dataset is in ./expert_dataset
 # Treechop
-python3 behavioral_cloning.py \
+xvfb-run python3 behavioral_cloning.py \
  --gpu 0 --env MineRLTreechop-v0 --outdir results/MineRLTreechop-v0/behavioral_cloning \
  --frame-skip 8 --frame-stack 1 --always-keys attack --reverse-keys forward \
  --exclude-keys back left right sneak sprint --num-camera-discretize 7 \

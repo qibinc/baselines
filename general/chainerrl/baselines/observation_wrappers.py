@@ -13,6 +13,7 @@ def generate_pov_converter(grayscale=False):
     Observation converter for pov only observations.
     '''
     def converter(observation):
+        observation = {x: observation[x][0] for x in observation}
         observation = observation['pov'].astype(np.float32)
         ret = []
         for orig_obs in observation:
@@ -33,6 +34,7 @@ def generate_pov_with_compass_converter(grayscale=False):
     Observation converter for pov and compassAngle observations such as `Navigate` tasks.
     '''
     def converter(observation):
+        observation = {x: observation[x][0] for x in observation}
         ret = []
         for pov, compass_angle in zip(
                 observation['pov'].astype(np.float32),
@@ -58,6 +60,7 @@ def generate_unified_observation_converter(grayscale=False, region_size=8):
     Observation converter for all of pov, compassAngle, and inventory.
     '''
     def converter(observation):
+        observation = {x: observation[x][0] for x in observation}
         ret = []
         batch_size = len(observation['pov'])
         compassAngles = observation['compassAngle'] if 'compassAngle' in observation else [None] * batch_size
@@ -67,7 +70,7 @@ def generate_unified_observation_converter(grayscale=False, region_size=8):
             obs = pov
             if grayscale:
                 obs = np.expand_dims(
-                    cv2.cvtColor(obs, cv2.COLOR_RGB2GRAY), axis=-1)
+                    np.stack([cv2.cvtColor(obs[i], cv2.COLOR_RGB2GRAY) for i in range(batch_size)]), axis=-1)
             obs = obs / 255
 
             if compass_angle is not None:

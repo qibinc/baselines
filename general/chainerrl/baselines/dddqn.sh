@@ -1,5 +1,5 @@
 # Treechop
-python3 dqn_family.py \
+xvfb-run python3 dqn_family.py \
   --gpu 0 --env MineRLTreechop-v0 --outdir results/MineRLTreechop-v0/dddqn \
   --final-exploration-frames 1000000 --final-epsilon 0.02 --arch dueling --replay-capacity 800000 --replay-start-size 1000 \
   --target-update-interval 1000 --update-interval 1 --agent DoubleDQN --monitor --lr 0.001 --gamma 0.99 --batch-accumulator mean \

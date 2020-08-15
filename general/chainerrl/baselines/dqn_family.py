@@ -279,6 +279,8 @@ def get_agent(
 ):
     # Q function
     q_func = parse_arch(arch, n_actions, n_input_channels=n_input_channels)
+    # Dummy input for initialization
+    q_func(np.zeros((1, n_input_channels, 64, 64), dtype=np.float32))
 
     # explorer
     if noisy_net_sigma is not None:
